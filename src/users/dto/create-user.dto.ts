@@ -2,7 +2,10 @@ import { IsString, IsEmail, MinLength, IsArray, IsOptional } from 'class-validat
 
 export class CreateUserDto {
   @IsString()
-  fullName: string;
+  firstName: string; // Nombres
+
+  @IsString()
+  lastName: string; // Apellidos
 
   @IsString()
   username: string;

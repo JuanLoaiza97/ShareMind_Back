@@ -5,8 +5,13 @@ export type UserDocument = User & Document;
 
 @Schema()
 export class User {
+  _id: string;
+
   @Prop({ required: true })
-  fullName: string;
+  firstName: string;
+
+  @Prop({ required: true })
+  lastName: string;
 
   @Prop({ required: true, unique: true })
   username: string;
@@ -20,11 +25,11 @@ export class User {
   @Prop()
   country: string;
 
-  @Prop([String])
-  languages: string[];
+  @Prop({ type: [String], default: [] })
+  languages?: string[];
 
-  @Prop([String])
-  interests: string[];
+  @Prop({ type: [String], default: [] })
+  interests?: string[];
 
   @Prop()
   bio: string;

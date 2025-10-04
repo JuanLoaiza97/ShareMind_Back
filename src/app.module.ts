@@ -8,7 +8,7 @@ import { UsersModule } from './users/users.module';
   imports: [
     // Conexión con MongoDB Atlas
     MongooseModule.forRoot(
-      'mongodb+srv://admin:admin1@cluster0.uj5kbpa.mongodb.net/sharemind?retryWrites=true&w=majority&appName=Cluster0',
+      'mongodb+srv://juanloaiza:Juan1234@cluster0.y46xqyf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
     ),
     UsersModule, // Importamos el módulo de usuarios
   ],
@@ -16,3 +16,5 @@ import { UsersModule } from './users/users.module';
   providers: [AppService],
 })
 export class AppModule {}
+
+//mongodb+srv://juanloaiza:<db_password>@cluster0.y46xqyf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
