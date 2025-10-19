@@ -32,7 +32,7 @@ export class UsersController {
     const isPasswordValid = await bcrypt.compare(body.password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Contraseña incorrecta');
-    }
+    } 
 
     // 🔑 Devolvemos los datos básicos (luego puedes reemplazar por JWT)
     return {
