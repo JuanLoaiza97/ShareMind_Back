@@ -1,19 +1,12 @@
-// import { NestFactory } from '@nestjs/core';
-// import { AppModule } from './app.module';
-
-// async function bootstrap() {
-//   const app = await NestFactory.create(AppModule);
-//   await app.listen(3000);
-// }
-// bootstrap();
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
-  app.enableCors();
-  await app.listen(4000);
+  app.enableCors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:5173', // cambia si usas otra URL
+    credentials: true,
+  });
+  await app.listen(process.env.PORT || 4000);
 }
 bootstrap();

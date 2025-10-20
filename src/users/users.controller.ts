@@ -1,53 +1,44 @@
-import { Body, Controller, Get, Post, UnauthorizedException } from '@nestjs/common';
+// src/users/users.controller.ts
+import { Body, Controller, Get, Post, UseGuards, Request, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // 🔹 Registro de usuarios
+  // Registro de usuarios -> responder sin password
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto): Promise<User> {
-    // 👉 NO hacemos hash aquí, solo mandamos el dto al service
-    return this.usersService.create(createUserDto);
+  async register(@Body() createUserDto: CreateUserDto): Promise<any> {
+    try {
+      const created = await this.usersService.create(createUserDto);
+      const userObj: any = (created as any)._doc || created;
+      delete userObj.password;
+      return userObj;
+    } catch (error) {
+      // Si es error de clave duplicada (11000), devolvemos mensaje más claro
+      if ((error as any).code === 11000) {
+        throw new BadRequestException('El correo o nombre de usuario ya está registrado');
+      }
+      throw error;
+    }
   }
 
-  // 🔹 Obtener todos los usuarios
+  // Obtener todos los usuarios
   @Get()
   async findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
-  // 🔹 Login de usuarios
-  @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
-    const user = await this.usersService.findByEmail(body.email);
-    if (!user) {
-      throw new UnauthorizedException('Usuario no encontrado');
-    }
-
-    const isPasswordValid = await bcrypt.compare(body.password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Contraseña incorrecta');
-    }
-
-    // 🔑 Devolvemos los datos básicos (luego puedes reemplazar por JWT)
-    return {
-      message: 'Login exitoso',
-      user: {
-        id: user._id.toString(),
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        username: user.username,
-        country: user.country,
-        languages: user.languages,
-        interests: user.interests,
-        bio: user.bio,
-      },
-    };
+  // Perfil - protegido por JWT
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile')
+  async profile(@Request() req: any) {
+    // req.user viene del JwtStrategy -> será el usuario sin password
+    return req.user;
   }
+
+  // NOTA: Quitamos el /users/login para evitar duplicidad con /auth/login
 }
