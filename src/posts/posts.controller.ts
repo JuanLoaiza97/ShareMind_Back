@@ -2,6 +2,8 @@ import {
   Controller,
   Post,
   Get,
+  Param,
+  Delete,
   Body,
   UseGuards,
   Request,
@@ -20,19 +22,30 @@ export class PostsController {
   @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(AnyFilesInterceptor())
-  async create(
-    @Request() req,
-    @UploadedFiles() files: Express.Multer.File[],
-    @Body() createPostDto: CreatePostDto,
-  ) {
-    console.log('Archivos recibidos:', files);
-    console.log('Datos recibidos:', createPostDto);
+  async create(@Request() req, @UploadedFiles() files: Express.Multer.File[], @Body() createPostDto: CreatePostDto) {
+    console.log('📦 Archivos recibidos:', files);
+    console.log('📝 Datos recibidos:', createPostDto);
 
-    return this.postsService.create(req.user._id, createPostDto);
+    const newPost = await this.postsService.create(req.user._id, createPostDto);
+    return {
+      message: '✅ Publicación creada con éxito',
+      post: newPost,
+    };
   }
 
   @Get()
   async findAll() {
     return this.postsService.findAll();
+  }
+
+  @Get('user/:id')
+  async findByUser(@Param('id') id: string) {
+    return this.postsService.findByUser(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  async delete(@Param('id') id: string, @Request() req) {
+    return this.postsService.delete(id, req.user._id);
   }
 }
