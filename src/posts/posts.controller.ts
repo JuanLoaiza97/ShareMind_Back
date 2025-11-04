@@ -2,11 +2,13 @@ import {
   Controller,
   Post,
   Get,
+  Param,
   Body,
   UseGuards,
   Request,
   UploadedFiles,
   UseInterceptors,
+  NotFoundException,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -17,6 +19,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  // 🟢 Crear un nuevo post
   @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(AnyFilesInterceptor())
@@ -31,8 +34,19 @@ export class PostsController {
     return this.postsService.create(req.user._id, createPostDto);
   }
 
+  // 🟢 Obtener todos los posts
   @Get()
   async findAll() {
     return this.postsService.findAll();
+  }
+
+  // 🟢 Obtener un post específico por ID
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const post = await this.postsService.findOne(id);
+    if (!post) {
+      throw new NotFoundException(`Post con id ${id} no encontrado`);
+    }
+    return post;
   }
 }
