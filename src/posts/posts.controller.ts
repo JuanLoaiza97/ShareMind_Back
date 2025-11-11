@@ -1,3 +1,4 @@
+// 
 import {
   Controller,
   Post,
@@ -9,6 +10,7 @@ import {
   UploadedFiles,
   UseInterceptors,
   NotFoundException,
+  Query,
 } from '@nestjs/common';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -38,6 +40,12 @@ export class PostsController {
   @Get()
   async findAll() {
     return this.postsService.findAll();
+  }
+
+  // 🟢 Buscar posts por texto (para Explore.tsx)
+  @Get('search')
+  async search(@Query('q') query: string) {
+    return this.postsService.search(query);
   }
 
   // 🟢 Obtener un post específico por ID
